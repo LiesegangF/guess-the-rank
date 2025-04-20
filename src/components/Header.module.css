@@ -1,0 +1,44 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+  
+  .headerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navLinks {
+    display: flex;
+    gap: 32px;
+  }
+  
+  .navLinks a {
+    text-decoration: none;
+    color: #e0e0e0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  .navLinks a:hover {
+    color: #ffffff;
+  }
+  
+  .profileIcon {
+    font-size: 28px;
+    color: #e0e0e0;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .profileIcon:hover {
+    color: #ffffff;
+  }
