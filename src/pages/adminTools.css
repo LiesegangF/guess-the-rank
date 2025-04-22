@@ -1,0 +1,73 @@
+.admin-container {
+  margin-top: 100px;
+  padding: 20px;
+  color: #f0f0f0;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid #444;
+  padding: 12px;
+  text-align: left;
+  background-color: #2a2a2a;
+  vertical-align: top;
+}
+
+.admin-table th {
+  background-color: #1f1f1f;
+}
+
+.admin-loading {
+  margin-top: 100px;
+  text-align: center;
+  color: #aaa;
+}
+
+.admin-tools-actions {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.upload-button:hover {
+  background-color: #2563eb;
+}
+
+.admin-table input {
+  width: 100%;
+  padding: 6px;
+  background-color: #111;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+}
+
+.admin-table button {
+  margin: 0 4px;
+  padding: 5px 8px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-table button:hover {
+  background-color: #2563eb;
+}

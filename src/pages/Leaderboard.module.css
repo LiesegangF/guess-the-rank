@@ -1,0 +1,35 @@
+.container {
+    padding: 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: #1e1e1e;
+    color: white;
+    border-radius: 8px;
+  }
+  
+  .title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+  }
+  
+  .table th {
+    background-color: #2b2b2b;
+    font-weight: bold;
+  }
+  
+  .table tr:hover {
+    background-color: #333;
+  }
+  
