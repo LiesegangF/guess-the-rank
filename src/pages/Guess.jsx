@@ -181,15 +181,16 @@ export default function Guess() {
   </div>
 
   <div className={styles.chatWrapper}>
-    <iframe
-      src="https://www.twitch.tv/embed/bucher/chat?darkpopout"
-      frameBorder="0"
-      scrolling="no"
-      height="360"
-      width="350"
-      title="Twitch Chat"
-    ></iframe>
-  </div>
+  <iframe
+    src="https://www.twitch.tv/embed/bucher/chat?darkpopout&parent=guess-the-rank-rayquazas-projects.vercel.app"
+    frameBorder="0"
+    scrolling="no"
+    height="360"
+    width="350"
+    title="Twitch Chat"
+  ></iframe>
+</div>
+
 </div>
 
 
