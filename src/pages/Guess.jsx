@@ -19,36 +19,16 @@ const calculatePoints = (guess, correct) => {
   return 0;
 };
 
-const rankImages = [
-  { name: "Iron 1", src: "/ranks/Iron_1_Rank.png" },
-  { name: "Iron 2", src: "/ranks/Iron_2_Rank.png" },
-  { name: "Iron 3", src: "/ranks/Iron_3_Rank.png" },
-  { name: "Bronze 1", src: "/ranks/Bronze_1_Rank.png" },
-  { name: "Bronze 2", src: "/ranks/Bronze_2_Rank.png" },
-  { name: "Bronze 3", src: "/ranks/Bronze_3_Rank.png" },
-  { name: "Silver 1", src: "/ranks/Silver_1_Rank.png" },
-  { name: "Silver 2", src: "/ranks/Silver_2_Rank.png" },
-  { name: "Silver 3", src: "/ranks/Silver_3_Rank.png" },
-  { name: "Gold 1", src: "/ranks/Gold_1_Rank.png" },
-  { name: "Gold 2", src: "/ranks/Gold_2_Rank.png" },
-  { name: "Gold 3", src: "/ranks/Gold_3_Rank.png" },
-  { name: "Platinum 1", src: "/ranks/Platinum_1_Rank.png" },
-  { name: "Platinum 2", src: "/ranks/Platinum_2_Rank.png" },
-  { name: "Platinum 3", src: "/ranks/Platinum_3_Rank.png" },
-  { name: "Diamond 1", src: "/ranks/Diamond_1_Rank.png" },
-  { name: "Diamond 2", src: "/ranks/Diamond_2_Rank.png" },
-  { name: "Diamond 3", src: "/ranks/Diamond_3_Rank.png" },
-  { name: "Ascendant 1", src: "/ranks/Ascendant_1_Rank.png" },
-  { name: "Ascendant 2", src: "/ranks/Ascendant_2_Rank.png" },
-  { name: "Ascendant 3", src: "/ranks/Ascendant_3_Rank.png" },
-  { name: "Immortal 1", src: "/ranks/Immortal_1_Rank.png" },
-  { name: "Immortal 2", src: "/ranks/Immortal_2_Rank.png" },
-  { name: "Immortal 3", src: "/ranks/Immortal_3_Rank.png" },
-  { name: "Radiant", src: "/ranks/Radiant_Rank.png" },
-];
+const rankImages = rankOrder.map((name) => ({
+  name,
+  src: `/ranks/${name.replace(" ", "_")}_Rank.png`
+}));
 
 export default function Guess() {
   const { user } = useAuth();
+  const [guestName, setGuestName] = useState("");
+  const [validatedGuest, setValidatedGuest] = useState(null);
+  const [guestError, setGuestError] = useState("");
   const [allClips, setAllClips] = useState([]);
   const [clips, setClips] = useState([]);
   const [answeredClips, setAnsweredClips] = useState([]);
@@ -57,46 +37,52 @@ export default function Guess() {
   const [reveal, setReveal] = useState(false);
   const [totalPoints, setTotalPoints] = useState(0);
 
-  useEffect(() => {
-    if (!user) return;
+  const username = user?.username || validatedGuest?.username;
 
-    async function fetchClipsAndAnswers() {
+  useEffect(() => {
+    async function fetchClips() {
       const { data: all } = await getClips();
+      setAllClips(all);
+      setClips(all);
+      setCurrentClip(all[Math.floor(Math.random() * all.length)] || null);
+    }
+
+    async function fetchUserAnswers() {
+      if (!username) return;
       const { data: answers } = await supabase
         .from("clip_answers")
         .select("clip_id, points")
-        .eq("username", user.username);
+        .eq("username", username);
 
-      const answeredIds = answers ? answers.map((a) => a.clip_id) : [];
-      const pointsSum = answers ? answers.reduce((sum, a) => sum + (a.points || 0), 0) : 0;
-      const remaining = all.filter((clip) => !answeredIds.includes(clip.id));
+      const ids = answers?.map((a) => a.clip_id) || [];
+      const points = answers?.reduce((sum, a) => sum + (a.points || 0), 0) || 0;
 
-      setAllClips(all);
-      setAnsweredClips(answeredIds);
-      setTotalPoints(pointsSum);
-      setClips(remaining);
-      setCurrentClip(
-        remaining[Math.floor(Math.random() * remaining.length)] || null
+      setAnsweredClips(ids);
+      setTotalPoints(points);
+      setClips((prev) => prev.filter((clip) => !ids.includes(clip.id)));
+      setCurrentClip((prev) =>
+        prev && !ids.includes(prev.id)
+          ? prev
+          : clips.length > 0
+          ? clips[0]
+          : null
       );
     }
 
-    fetchClipsAndAnswers();
-  }, [user]);
+    fetchClips().then(fetchUserAnswers);
+  }, [username]);
 
   const handleSelectRank = (rankName) => {
-    if (!reveal) {
-      setSelectedRank(rankName);
-    }
+    if (!reveal) setSelectedRank(rankName);
   };
 
   const handleNext = async () => {
-    if (!user || !currentClip) return;
-  
+    if (!currentClip) return;
     const points = calculatePoints(selectedRank, currentClip.rank);
-  
+
     const { error } = await supabase.from("clip_answers").insert([
       {
-        username: user.username,
+        username,
         clip_id: currentClip.id,
         guessed_rank: selectedRank,
         correct_rank: currentClip.rank,
@@ -104,32 +90,69 @@ export default function Guess() {
         points,
       },
     ]);
-  
+
     if (error) {
-      console.error("Fehler beim Speichern in Supabase:", error.message);
+      console.error("Fehler beim Speichern:", error.message);
       alert("Antwort konnte nicht gespeichert werden: " + error.message);
       return;
     }
-  
+
     const newAnswered = [...answeredClips, currentClip.id];
     setAnsweredClips(newAnswered);
-    setTotalPoints((prev) => prev + points);
-  
-    const remainingClips = clips.filter((clip) => clip.id !== currentClip.id);
-    setClips(remainingClips);
+    if (username) setTotalPoints((prev) => prev + points);
+
+    const remaining = clips.filter((clip) => clip.id !== currentClip.id);
+    setClips(remaining);
     setCurrentClip(
-      remainingClips[Math.floor(Math.random() * remainingClips.length)] || null
+      remaining[Math.floor(Math.random() * remaining.length)] || null
     );
     setSelectedRank(null);
     setReveal(false);
   };
-  
 
-  const handleReset = async () => {
-    await supabase.from("clip_answers").delete().eq("username", user.username);
-    setAnsweredClips([]);
-    setTotalPoints(0);
-    window.location.reload();
+  const handleGuestLogin = async () => {
+    if (!guestName) return;
+
+    const trimmedName = guestName.trim().toLowerCase();
+
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("username")
+      .eq("username", trimmedName)
+      .single();
+
+    if (existingUser) {
+      setGuestError("Dieser Benutzername ist bereits vergeben.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("users")
+      .insert([{ username: trimmedName }]);
+
+    if (error) {
+      console.error(error);
+      setGuestError("Fehler beim Erstellen des Benutzers.");
+    } else {
+      setValidatedGuest({ username: trimmedName });
+      setGuestError("");
+    }
+  };
+
+  const resetGame = async () => {
+    if (!username) return;
+  
+    const { error } = await supabase
+      .from("clip_answers")
+      .delete()
+      .eq("username", username);
+  
+    if (error) {
+      console.error("Fehler beim Zurücksetzen:", error);
+      alert("Fehler beim Zurücksetzen.");
+    } else {
+      window.location.reload(); // danach neu laden
+    }
   };
 
   const progressPercent =
@@ -137,19 +160,29 @@ export default function Guess() {
       ? (answeredClips.length / allClips.length) * 100
       : 0;
 
-  if (
-    allClips.length > 0 &&
-    answeredClips.length === allClips.length &&
-    !currentClip
-  ) {
+      if (!user && !validatedGuest) {
+        return (
+          <div className={styles.guestLoginPage}>
+            <h2>Guess The Rank</h2>
+            <p>Bitte gib deinen gewünschten Benutzernamen ein:</p>
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="Benutzername"
+            />
+            <button onClick={handleGuestLogin}>Loslegen</button>
+            {guestError && <p>{guestError}</p>}
+          </div>
+        );
+      }
+
+  if (clips.length === 0 && allClips.length > 0) {
     return (
       <div className={styles.guessPage}>
-        <h1>🎉 Runde abgeschlossen!</h1>
-        <p>Du hast alle {allClips.length} Clips bewertet.</p>
-        <p>Gesamtpunktzahl: {totalPoints} Punkte</p>
-        <button onClick={handleReset} className={styles.nextButton}>
-          Runde zurücksetzen
-        </button>
+        <h1>Alle Clips bewertet!</h1>
+        <p>Du hast {totalPoints} Punkte erreicht.</p>
+        <button className={styles.resetButton} onClick={resetGame}>Zurücksetzen</button>
       </div>
     );
   }
@@ -165,34 +198,22 @@ export default function Guess() {
         ></div>
       </div>
       <p className={styles.progressText}>
-        {answeredClips.length} von {allClips.length} Clips bewertet – {totalPoints} Punkte
+        {answeredClips.length} von {allClips.length} Clips bewertet –{" "}
+        {totalPoints} Punkte
       </p>
 
       {currentClip && (
         <>
-          <div className={styles.clipAndChat}>
-  <div className={styles.clipWrapper}>
-    <iframe
-      src={`https://www.youtube.com/embed/${extractYouTubeId(currentClip.url)}`}
-      title="Clip"
-      frameBorder="0"
-      allowFullScreen
-    ></iframe>
-  </div>
-
-  <div className={styles.chatWrapper}>
-  <iframe
-    src="https://www.twitch.tv/embed/bucher/chat?darkpopout&+ parent=chat.bucher.tv"
-    frameBorder="0"
-    scrolling="no"
-    height="360"
-    width="350"
-    title="Twitch Chat"
-  ></iframe>
-</div>
-
-</div>
-
+          <div className={styles.clipWrapper}>
+            <iframe
+              src={`https://www.youtube.com/embed/${extractYouTubeId(
+                currentClip.url
+              )}`}
+              title="Clip"
+              frameBorder="0"
+              allowFullScreen
+            ></iframe>
+          </div>
 
           <div className={styles.rankGrid}>
             {rankImages.map((rank) => (
@@ -224,10 +245,11 @@ export default function Guess() {
           {reveal && (
             <div className={styles.resultBox}>
               <p>
-                Du hast <strong>{selectedRank}</strong> gewählt.<br />
+                Du hast <strong>{selectedRank}</strong> gewählt.
+                <br />
                 Richtig war: <strong>{currentClip.rank}</strong>
               </p>
-              <button onClick={handleNext} className={styles.nextButton}>
+              <button className={styles.nextButton} onClick={handleNext}>
                 Nächster Clip
               </button>
             </div>

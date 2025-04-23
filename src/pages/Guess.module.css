@@ -1,5 +1,5 @@
 .guessPage {
-    padding: 2rem;
+    padding: 3rem 2rem 2rem; /* vorher: 2rem */
     color: white;
     text-align: center;
   }
@@ -138,7 +138,53 @@
     height: 360px;
   }
   
-  .chatWrapper iframe {
-    border-radius: 6px;
+  
+  .guestLoginPage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #0a0a0a;
+    color: white;
+    text-align: center;
   }
+  
+  .guestLoginPage h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .guestLoginPage input {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #666;
+    border-radius: 6px;
+    background-color: #1a1a1a;
+    color: white;
+    margin-bottom: 1rem;
+    width: 250px;
+  }
+  
+  .guestLoginPage button {
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .guestLoginPage button:hover {
+    background-color: #45a049;
+  }
+  
+  .guestLoginPage p {
+    margin-top: 0.5rem;
+    color: #f44336;
+  }
+  
   
