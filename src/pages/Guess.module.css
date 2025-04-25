@@ -235,4 +235,18 @@
     gap: 1rem;
   }
   
+  .uploaderName {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: #ccc;
+  }
+  
+ 
+  
+  .resultMeta {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: #4caf50;
+    text-align: center;
+  }
   

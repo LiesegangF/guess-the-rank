@@ -36,6 +36,7 @@ export default function Guess() {
   const [selectedRank, setSelectedRank] = useState(null);
   const [reveal, setReveal] = useState(false);
   const [totalPoints, setTotalPoints] = useState(0);
+  const [currentPoints, setCurrentPoints] = useState(null);
 
   const username = user?.username || validatedGuest?.username;
 
@@ -99,7 +100,7 @@ export default function Guess() {
 
     const newAnswered = [...answeredClips, currentClip.id];
     setAnsweredClips(newAnswered);
-    if (username) setTotalPoints((prev) => prev + points);
+    setTotalPoints((prev) => prev + points);
 
     const remaining = clips.filter((clip) => clip.id !== currentClip.id);
     setClips(remaining);
@@ -108,6 +109,7 @@ export default function Guess() {
     );
     setSelectedRank(null);
     setReveal(false);
+    setCurrentPoints(null);
   };
 
   const handleGuestLogin = async () => {
@@ -229,6 +231,18 @@ export default function Guess() {
                     className={styles.resultImage}
                   />
                 </div>
+                {(currentClip.name || currentPoints !== null) && (
+                  <p className={styles.resultMeta}>
+                    Name des Einsenders: <strong>{currentClip.name}</strong>
+                    {currentPoints !== null && (
+                      <>
+                        {" "}
+                        · Du hast <strong>{currentPoints}</strong>{" "}
+                        {currentPoints === 1 ? "Punkt" : "Punkte"} erzielt.
+                      </>
+                    )}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -254,7 +268,12 @@ export default function Guess() {
           {selectedRank && !reveal && (
             <button
               className={styles.revealButton}
-              onClick={() => setReveal(true)}
+              onClick={() => {
+                setReveal(true);
+                setCurrentPoints(
+                  calculatePoints(selectedRank, currentClip.rank)
+                );
+              }}
             >
               Rank Reveal
             </button>
