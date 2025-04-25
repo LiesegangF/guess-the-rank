@@ -186,5 +186,53 @@
     margin-top: 0.5rem;
     color: #f44336;
   }
+
+  .resultRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .resultImageBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .resultImage {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 10px;
+    background-color: #111;
+    padding: 0.5rem;
+  }
+  
+  .nextButtonWrapper {
+    flex-basis: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  
+  .clipAndResult {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .resultColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
   
   

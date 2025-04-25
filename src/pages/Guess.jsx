@@ -139,50 +139,45 @@ export default function Guess() {
     }
   };
 
-  const resetGame = async () => {
-    if (!username) return;
-  
-    const { error } = await supabase
-      .from("clip_answers")
-      .delete()
-      .eq("username", username);
-  
-    if (error) {
-      console.error("Fehler beim Zurücksetzen:", error);
-      alert("Fehler beim Zurücksetzen.");
-    } else {
-      window.location.reload(); // danach neu laden
-    }
-  };
-
   const progressPercent =
     allClips.length > 0
       ? (answeredClips.length / allClips.length) * 100
       : 0;
 
-      if (!user && !validatedGuest) {
-        return (
-          <div className={styles.guestLoginPage}>
-            <h2>Guess The Rank</h2>
-            <p>Bitte gib deinen gewünschten Benutzernamen ein:</p>
-            <input
-              type="text"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-              placeholder="Benutzername"
-            />
-            <button onClick={handleGuestLogin}>Loslegen</button>
-            {guestError && <p>{guestError}</p>}
-          </div>
-        );
-      }
+  if (!user && !validatedGuest) {
+    return (
+      <div className={styles.guestLoginPage}>
+        <h2>Guess The Rank</h2>
+        <p>Bitte gib deinen gewünschten Benutzernamen ein:</p>
+        <input
+          type="text"
+          value={guestName}
+          onChange={(e) => setGuestName(e.target.value)}
+          placeholder="Benutzername"
+        />
+        <button onClick={handleGuestLogin}>Loslegen</button>
+        {guestError && <p>{guestError}</p>}
+      </div>
+    );
+  }
 
   if (clips.length === 0 && allClips.length > 0) {
     return (
       <div className={styles.guessPage}>
         <h1>Alle Clips bewertet!</h1>
         <p>Du hast {totalPoints} Punkte erreicht.</p>
-        <button className={styles.resetButton} onClick={resetGame}>Zurücksetzen</button>
+        <button
+          className={styles.resetButton}
+          onClick={async () => {
+            await supabase
+              .from("clip_answers")
+              .delete()
+              .eq("username", username);
+            window.location.reload();
+          }}
+        >
+          Zurücksetzen
+        </button>
       </div>
     );
   }
@@ -204,15 +199,38 @@ export default function Guess() {
 
       {currentClip && (
         <>
-          <div className={styles.clipWrapper}>
-            <iframe
-              src={`https://www.youtube.com/embed/${extractYouTubeId(
-                currentClip.url
-              )}`}
-              title="Clip"
-              frameBorder="0"
-              allowFullScreen
-            ></iframe>
+          <div className={styles.clipAndResult}>
+            <div className={styles.clipWrapper}>
+              <iframe
+                src={`https://www.youtube.com/embed/${extractYouTubeId(
+                  currentClip.url
+                )}`}
+                title="Clip"
+                frameBorder="0"
+                allowFullScreen
+              ></iframe>
+            </div>
+
+            {reveal && (
+              <div className={styles.resultColumn}>
+                <div className={styles.resultImageBox}>
+                  <p>Deine Wahl:</p>
+                  <img
+                    src={`/ranks/${selectedRank.replace(" ", "_")}_Rank.png`}
+                    alt="Deine Wahl"
+                    className={styles.resultImage}
+                  />
+                </div>
+                <div className={styles.resultImageBox}>
+                  <p>Richtig war:</p>
+                  <img
+                    src={`/ranks/${currentClip.rank.replace(" ", "_")}_Rank.png`}
+                    alt="Richtig"
+                    className={styles.resultImage}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.rankGrid}>
@@ -243,12 +261,7 @@ export default function Guess() {
           )}
 
           {reveal && (
-            <div className={styles.resultBox}>
-              <p>
-                Du hast <strong>{selectedRank}</strong> gewählt.
-                <br />
-                Richtig war: <strong>{currentClip.rank}</strong>
-              </p>
+            <div className={styles.nextButtonWrapper}>
               <button className={styles.nextButton} onClick={handleNext}>
                 Nächster Clip
               </button>
