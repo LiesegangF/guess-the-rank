@@ -45,8 +45,7 @@ export default function Guess() {
       const { data: all } = await getClips();
       setAllClips(all);
       setClips(all);
-      setCurrentClip(all[Math.floor(Math.random() * all.length)] || null);
-    }
+      setCurrentClip(all[0] || null);
 
     async function fetchUserAnswers() {
       if (!username) return;
@@ -61,13 +60,9 @@ export default function Guess() {
       setAnsweredClips(ids);
       setTotalPoints(points);
       setClips((prev) => prev.filter((clip) => !ids.includes(clip.id)));
-      setCurrentClip((prev) =>
-        prev && !ids.includes(prev.id)
-          ? prev
-          : clips.length > 0
-          ? clips[0]
-          : null
-      );
+     setCurrentClip((prev) =>
+  prev && !ids.includes(prev.id) ? prev : all[0] || null
+);
     }
 
     fetchClips().then(fetchUserAnswers);
@@ -104,9 +99,7 @@ export default function Guess() {
 
     const remaining = clips.filter((clip) => clip.id !== currentClip.id);
     setClips(remaining);
-    setCurrentClip(
-      remaining[Math.floor(Math.random() * remaining.length)] || null
-    );
+    setCurrentClip(remaining[0] || null);
     setSelectedRank(null);
     setReveal(false);
     setCurrentPoints(null);
